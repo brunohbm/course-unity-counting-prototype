@@ -1,11 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField] GameObject[] ballsPrefab;
     [SerializeField] int spawnAmount = 15;
+    [SerializeField] Slider betSlider;
+    [SerializeField] TextMeshProUGUI betAmountText;
+    [SerializeField] TextMeshProUGUI finalBetText;
+    [SerializeField] Button betButton;
+    [SerializeField] GameObject betScreen;
+    [SerializeField] GameObject resultScreen;
 
     BoxCollider spawnDelimiter;
     List<GameObject> instantiatedPrefabs = new List<GameObject>();
@@ -18,11 +26,31 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         InstantiatePrefabs();
+        betSlider.onValueChanged.AddListener(OnChangeBetSlider);
+        betButton.onClick.AddListener(StartBet);
+        betSlider.maxValue = spawnAmount;
     }
 
     void Update()
     {
 
+    }
+
+    void OnChangeBetSlider(float newValue)
+    {
+        betAmountText.text = newValue.ToString();
+        finalBetText.text = "Guess: " + newValue;
+    }
+
+    void StartBet()
+    {
+        betScreen.SetActive(false);
+        resultScreen.SetActive(true);
+
+        foreach (GameObject prefab in instantiatedPrefabs)
+        {
+            prefab.GetComponent<Rigidbody>().isKinematic = false;
+        }
     }
 
     void InstantiatePrefabs()
@@ -33,7 +61,7 @@ public class GameManager : MonoBehaviour
             GameObject prefabToInstantiate = GetRandomPrefab();      
             GameObject instantiatedPrefab = GameObject.Instantiate(prefabToInstantiate, position, prefabToInstantiate.transform.rotation);
 
-            instantiatedPrefab.GetComponent<Collider>().isTrigger = true;
+            instantiatedPrefab.GetComponent<Rigidbody>().isKinematic = true;
             instantiatedPrefabs.Add(instantiatedPrefab);
         }
     }
